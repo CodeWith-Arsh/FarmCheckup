@@ -1,0 +1,49 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farm App</title>
+</head>
+<body>
+    <h1>Farm App - Analyze Leaf</h1>
+    <form id="uploadForm">
+        <label for="photo">Upload a photo of the leaf:</label>
+        <input type="file" id="photo" name="photo" accept="image/*">
+        <button type="submit">Analyze</button>
+    </form>
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async function (event) {
+            event.preventDefault();
+
+            const formData = new FormData();
+            const photoInput = document.getElementById('photo');
+
+            if (photoInput.files.length > 0) {
+                formData.append('photo', photoInput.files[0]);
+
+                try {
+                    const response = await fetch('http://localhost:5000/api/analysis/analyze', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (response.ok) {
+                        const result = await response.json();
+                        document.getElementById('result').innerText = `Diagnosis: ${result.diagnosis}\nSolution: ${result.solution}`;
+                    } else {
+                        document.getElementById('result').innerText = 'Error analyzing the photo.';
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    document.getElementById('result').innerText = 'An error occurred.';
+                }
+            } else {
+                document.getElementById('result').innerText = 'Please select a photo to upload.';
+            }
+        });
+    </script>
+</body>
+</html>
